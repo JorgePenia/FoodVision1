@@ -153,6 +153,27 @@
 </div>
 
 <script>
+  // ---------- ESTADO GLOBAL ----------
+  const home = document.getElementById('home');
+  const confirm = document.getElementById('confirm');
+  const results = document.getElementById('results');
+  const trial = document.getElementById('trial');
+  const previewConfirm = document.getElementById('previewConfirm');
+
+  let selectedFile = null;
+
+  // ---------- PREVIEW ----------
+  function previewImage(event){
+    selectedFile = event.target.files[0];
+    if(!selectedFile) return;
+
+    previewConfirm.src = URL.createObjectURL(selectedFile);
+
+    home.classList.remove('active');
+    confirm.classList.add('active');
+  }
+
+  // ---------- ANALIZAR ----------
   async function goToResults(){
     if(!selectedFile){
       alert("Selecciona una imagen primero");
@@ -161,9 +182,10 @@
 
     confirm.classList.remove('active');
     results.classList.add('active');
+
     document.getElementById('resultImage').src = previewConfirm.src;
 
-    // Reset semáforo
+    // Reset UI
     ['greenLight','yellowLight','redLight'].forEach(id=>{
       document.getElementById(id).className = 'light';
     });
@@ -187,35 +209,33 @@
 
       const data = await response.json();
 
-      // CASO GRIS
+      // ---- CASO NO COMIDA / BEBIDA ----
       if(data.result === 'gris'){
         document.getElementById('resultCopy').textContent = data.message;
         return;
       }
 
-      // CASO SEMÁFORO NORMAL
-      const colorMap = {
+      // ---- SEMÁFORO ----
+      const map = {
         verde: 'green',
         amarillo: 'yellow',
         rojo: 'red'
       };
 
-      const uiColor = colorMap[data.result];
+      const uiColor = map[data.result];
       document.getElementById(uiColor + 'Light').classList.add(uiColor);
       document.getElementById('resultCopy').textContent = data.message;
 
-      // Valores placeholder coherentes (luego vendrán del backend)
+      // placeholders coherentes
       if(uiColor === 'green'){
         document.getElementById('calories').textContent = 350;
         document.getElementById('sugar').textContent = 8;
         document.getElementById('diabetes').textContent = "Bajo riesgo";
-      }
-      else if(uiColor === 'yellow'){
+      } else if(uiColor === 'yellow'){
         document.getElementById('calories').textContent = 500;
         document.getElementById('sugar').textContent = 15;
         document.getElementById('diabetes').textContent = "Moderado";
-      }
-      else{
+      } else {
         document.getElementById('calories').textContent = 800;
         document.getElementById('sugar').textContent = 25;
         document.getElementById('diabetes').textContent = "Alto riesgo";
@@ -226,7 +246,22 @@
         "Error al analizar la imagen. Intenta nuevamente.";
     }
   }
+
+  // ---------- NAVEGACIÓN ----------
+  function goToHome(){
+    results.classList.remove('active');
+    confirm.classList.remove('active');
+    home.classList.add('active');
+    document.getElementById('foodInput').value = '';
+    selectedFile = null;
+  }
+
+  function goToTrial(){
+    results.classList.remove('active');
+    trial.classList.add('active');
+  }
 </script>
 
 </body>
 </html>
+
