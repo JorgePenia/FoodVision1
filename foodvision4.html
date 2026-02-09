@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Food Vision MVP UX Final</title>
+<style>
+  * { box-sizing: border-box; margin:0; padding:0; font-family:'Montserrat', sans-serif; }
+  body { background:#f5f5f5; color:#333; display:flex; flex-direction:column; align-items:center; min-height:100vh; }
+
+  .screen { display:none; flex-direction:column; align-items:center; justify-content:flex-start; width:100%; max-width:500px; padding:20px; text-align:center; }
+  .active { display:flex; }
+
+  h1 { font-size:2em; margin:20px 0 10px; }
+  h2 { font-size:1.2em; font-weight:normal; margin-bottom:20px; color:#555; }
+  p { margin-bottom:10px; }
+
+  .btn { padding:15px 25px; font-size:1.1em; border:none; border-radius:8px; cursor:pointer; margin:10px 0; transition:all 0.2s; }
+  .btn-primary { background-color:#4CAF50; color:white; }
+  .btn-primary:hover { background-color:#45a049; }
+  .btn-secondary { background-color:#9E9E9E; color:white; }
+  .btn-secondary:hover { background-color:#757575; }
+  .btn-red { background-color:#F44336; color:white; }
+  .btn-red:hover { background-color:#d32f2f; }
+
+  input[type="file"] { display:none; }
+
+  img.preview { max-width:100%; border-radius:12px; margin-bottom:20px; border:2px solid #ddd; }
+
+  .semaforo-cards { display:flex; justify-content:space-between; gap:10px; flex-wrap:nowrap; margin:15px 0; }
+  .result-card { padding:15px 20px; border-radius:12px; margin:10px 0; box-shadow:0 2px 8px rgba(0,0,0,0.15); flex:1; text-align:center; min-width:0; }
+  .result-card p { font-size:0.9em; }
+
+  .three-steps { display:flex; justify-content:space-between; margin:20px 0; gap:10px; flex-wrap:wrap; }
+  .three-steps div { flex:1; text-align:center; min-width:0; }
+  .three-steps div p { font-size:0.9em; margin-top:5px; }
+
+  .semaforo { display:flex; justify-content:center; gap:15px; margin:15px 0; }
+  .light { width:60px; height:60px; border-radius:50%; background:#ccc; position:relative; }
+  .green { background:#4CAF50; box-shadow:0 0 10px #4CAF50; }
+  .yellow { background:#FFC107; box-shadow:0 0 10px #FFC107; }
+  .red { background:#F44336; box-shadow:0 0 10px #F44336; }
+
+  .result-item { display:flex; align-items:center; gap:10px; margin-bottom:8px; font-size:1em; }
+
+  .note { font-size:0.85em; color:#777; margin-top:10px; position:fixed; bottom:10px; width:100%; max-width:500px; text-align:center; }
+
+  @media (max-width:500px){
+    h1{font-size:1.6em;}
+    .btn{width:100%;}
+    .semaforo-cards{flex-direction:row; overflow-x:auto;}
+    .semaforo .light{width:50px;height:50px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- --- Home --- -->
+<div id="home" class="screen active">
+  <h1>Food Vision</h1>
+
+  <!-- Hero -->
+  <img src="https://images.unsplash.com/photo-1600891964599-f61ba0e24092?auto=format&fit=crop&w=800&q=80" 
+       alt="Plato saludable" 
+       style="width:100%; border-radius:12px; margin-bottom:20px; object-fit:cover; max-height:250px; box-shadow:0 4px 10px rgba(0,0,0,0.15);">
+
+  <!-- Tarjetas semáforo horizontales -->
+  <div class="semaforo-cards">
+    <div class="result-card" style="background:#4CAF50; color:white;">
+      <strong>Verde</strong>
+      <p>Saludable 😋</p>
+    </div>
+    <div class="result-card" style="background:#FFC107; color:black;">
+      <strong>Amarillo</strong>
+      <p>Moderación ⚠️</p>
+    </div>
+    <div class="result-card" style="background:#F44336; color:white;">
+      <strong>Rojo</strong>
+      <p>Alto en calorías 🚨</p>
+    </div>
+  </div>
+
+  <!-- 3 Steps Way con título y numeración -->
+  <h2 style="margin-top:20px; font-size:1.2em; color:#555;">3 pasos para tu análisis rápido</h2>
+  <div class="three-steps">
+    <div>
+      <div style="font-size:2em;">1️⃣📱</div>
+      <p>Abre Food Vision</p>
+    </div>
+    <div>
+      <div style="font-size:2em;">2️⃣📸</div>
+      <p>Captura tu plato</p>
+    </div>
+    <div>
+      <div style="font-size:2em;">3️⃣🚦</div>
+      <p>Revisa el semáforo</p>
+    </div>
+  </div>
+
+  <!-- Botón grande para tomar foto justo antes del footer -->
+  <label for="foodInput" class="btn btn-primary" style="margin-top:15px;">📸 Tomar foto del plato</label>
+  <input type="file" accept="image/*" id="foodInput" onchange="previewImage(event)">
+
+  <!-- Footer: prueba gratuita -->
+  <p class="note">Prueba gratuita: 3 días o 15 imágenes</p>
+</div>
+
+<!-- --- Confirmación / Analizar --- -->
+<div id="confirm" class="screen">
+  <h2>Esta es el plato que analizaremos para ti...</h2>
+  <img id="previewConfirm" class="preview">
+  <button class="btn btn-primary" onclick="goToResults()">📊 Analizar</button>
+
+  <!-- Descargo -->
+  <p style="font-weight:bold;font-style:italic;font-size:0.8em;line-height:1.2;color:#555;margin-top:5px;">
+    ⚠️ Food Vision proporciona orientación general y no reemplaza la consulta profesional.
+  </p>
+</div>
+
+<!-- --- Resultados --- -->
+<div id="results" class="screen">
+  <h1>Resultado del plato</h1>
+  <img id="resultImage" class="preview">
+
+  <div class="semaforo">
+    <div class="light green" id="greenLight"></div>
+    <div class="light yellow" id="yellowLight"></div>
+    <div class="light red" id="redLight"></div>
+  </div>
+
+  <div class="result-card">
+    <div id="resultCopy">Analizando...</div>
+    <div class="result-item">🔥 Calorías: <span id="calories">---</span> kcal</div>
+    <div class="result-item">🍬 Azúcar: <span id="sugar">---</span> g</div>
+    <div class="result-item">⚖️ Diabetes: <span id="diabetes">---</span></div>
+  </div>
+
+  <button class="btn btn-secondary" onclick="goToHome()">Analizar otra comida</button>
+  <button class="btn btn-red" onclick="goToTrial()">Fin de prueba / Suscripción</button>
+</div>
+
+<!-- --- Fin de Trial --- -->
+<div id="trial" class="screen">
+  <h1>¡Tu prueba terminó!</h1>
+  <h2>Continúa usando Food Vision por solo USD 14,99 / año</h2>
+  <div class="result-card">
+    <div class="result-item">📸 Analiza tus comidas en segundos</div>
+    <div class="result-item">🟢 Semáforo de calorías y azúcar</div>
+    <div class="result-item">⚖️ Control total para diabéticos</div>
+  </div>
+  <button class="btn btn-red">Continuar por USD 14,99</button>
+  <p class="note">Sin suscripciones mensuales, pago único anual</p>
+</div>
+
+<script>
+  const home = document.getElementById('home');
+  const confirm = document.getElementById('confirm');
+  const results = document.getElementById('results');
+  const trial = document.getElementById('trial');
+  const previewConfirm = document.getElementById('previewConfirm');
+  let selectedFile;
+
+  function previewImage(event){
+    selectedFile = event.target.files[0];
+    if(selectedFile){
+      previewConfirm.src = URL.createObjectURL(selectedFile);
+      confirm.classList.add('active');
+      home.classList.remove('active');
+    }
+  }
+
+  function goToResults(){
+    if(!selectedFile){ alert("Selecciona una imagen primero"); return; }
+
+    confirm.classList.remove('active');
+    results.classList.add('active');
+    document.getElementById('resultImage').src = previewConfirm.src;
+
+    ['greenLight','yellowLight','redLight'].forEach(id=>{
+      document.getElementById(id).classList.remove('green','yellow','red');
+    });
+
+    const rand = Math.random();
+    let color, copy, calories, sugar, diabetes;
+
+    if(rand<0.4){ color='green'; copy="Excelente, tu plato es saludable. Sigue así 😋"; calories=350; sugar=8; diabetes="Bajo riesgo"; }
+    else if(rand<0.7){ color='yellow'; copy="Moderación, algunos elementos pueden ser altos en calorías o azúcar ⚠️"; calories=500; sugar=15; diabetes="Moderado"; }
+    else { color='red'; copy="Precaución, este plato es alto en calorías o azúcar 🚨, considera balancear"; calories=800; sugar=25; diabetes="Alto riesgo"; }
+
+    document.getElementById(color+'Light').classList.add(color);
+    document.getElementById('resultCopy').textContent = copy;
+    document.getElementById('calories').textContent = calories;
+    document.getElementById('sugar').textContent = sugar;
+    document.getElementById('diabetes').textContent = diabetes;
+  }
+
+  function goToHome(){
+    confirm.classList.remove('active');
+    results.classList.remove('active');
+    home.classList.add('active');
+    document.getElementById('foodInput').value='';
+  }
+
+  function goToTrial(){
+    results.classList.remove('active');
+    trial.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
